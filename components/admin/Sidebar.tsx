@@ -73,6 +73,15 @@ export function AdminSidebar({ userName, userRole }: { userName: string; userRol
             {item.label}
           </Link>
         ))}
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="flex flex-col items-center text-[10px] px-2 py-1 rounded-lg text-[var(--color-ink-soft)]"
+        >
+          <span className="text-lg" aria-hidden>
+            🚪
+          </span>
+          Salir
+        </button>
       </nav>
     </>
   );

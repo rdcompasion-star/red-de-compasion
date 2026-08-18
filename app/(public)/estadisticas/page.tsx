@@ -67,8 +67,9 @@ export default async function PublicStatsPage() {
     if (!p.entryInfo?.fechaIngreso || !p.exitInfo?.fechaEgreso) continue;
     const start = new Date(p.entryInfo.fechaIngreso);
     const end = new Date(p.exitInfo.fechaEgreso);
-    let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-    if (months < 0) months = 0;
+    const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    // descarta valores fuera de un rango realista (0 a 20 años): probablemente un error de tipeo en la fecha
+    if (months < 0 || months > 240) continue;
     durations.push(months);
   }
   const avgMonths = durations.length > 0 ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null;
