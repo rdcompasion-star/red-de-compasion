@@ -17,11 +17,15 @@ export default async function HomePage() {
   };
 
   const tiles = [
-    { label: "Personas registradas", value: total, tone: "earth" },
-    { label: "Residentes activos", value: resumen.residentesActivos, tone: "sage" },
-    { label: "Egresados", value: resumen.egresados, tone: "sky" },
-    { label: "Reinsertados", value: resumen.reinsertados, tone: "sage" },
-    { label: "Reinsertados y trabajando", value: resumen.reinsertadosTrabajando, tone: "sage" },
+    { label: "Personas registradas", value: total, href: "/personas" },
+    { label: "Residentes activos", value: resumen.residentesActivos, href: "/personas?estado=RESIDENTE_ACTIVO" },
+    { label: "Egresados", value: resumen.egresados, href: "/personas?estado=EGRESADO" },
+    { label: "Reinsertados", value: resumen.reinsertados, href: "/personas?estado=REINSERTADO" },
+    {
+      label: "Reinsertados y trabajando",
+      value: resumen.reinsertadosTrabajando,
+      href: "/personas?estado=REINSERTADO_TRABAJANDO",
+    },
   ];
 
   return (
@@ -56,13 +60,14 @@ export default async function HomePage() {
 
       <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {tiles.map((t) => (
-          <div
+          <Link
             key={t.label}
-            className="rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-5 text-center shadow-sm"
+            href={t.href}
+            className="rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-5 text-center shadow-sm hover:border-[var(--color-earth-400)] hover:shadow-md transition"
           >
             <div className="text-3xl font-semibold text-[var(--color-earth-800)]">{t.value}</div>
             <div className="mt-1 text-xs text-[var(--color-ink-soft)]">{t.label}</div>
-          </div>
+          </Link>
         ))}
       </section>
 

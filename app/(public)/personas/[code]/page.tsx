@@ -38,29 +38,34 @@ export default async function PublicPersonPage({ params }: { params: Promise<{ c
       </div>
 
       {(ingresoFoto || egresoFoto) && (
-        <div>
-          <h2 className="text-sm font-medium text-[var(--color-ink-soft)] text-center mb-3">Evolución</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-2xl bg-[var(--color-earth-50)] p-5 sm:p-6">
+          <h2 className="text-sm font-medium text-[var(--color-earth-800)] text-center mb-4">Su evolución</h2>
+          <div className="flex items-center justify-center gap-3 sm:gap-5">
             {ingresoFoto && (
-              <figure>
+              <figure className="flex-1 max-w-[220px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`/api/public/fotos/${ingresoFoto.id}`}
                   alt="Fotografía de ingreso"
-                  className="rounded-xl w-full aspect-square object-cover"
+                  className="rounded-2xl w-full aspect-square object-cover shadow-md ring-1 ring-black/5"
                 />
-                <figcaption className="text-center text-xs text-[var(--color-ink-soft)] mt-2">Ingreso</figcaption>
+                <figcaption className="text-center text-xs font-medium text-[var(--color-ink-soft)] mt-2">Ingreso</figcaption>
               </figure>
             )}
+            {ingresoFoto && egresoFoto && (
+              <span className="text-2xl text-[var(--color-earth-400)] shrink-0" aria-hidden>
+                →
+              </span>
+            )}
             {egresoFoto && (
-              <figure>
+              <figure className="flex-1 max-w-[220px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`/api/public/fotos/${egresoFoto.id}`}
                   alt="Fotografía de egreso"
-                  className="rounded-xl w-full aspect-square object-cover"
+                  className="rounded-2xl w-full aspect-square object-cover shadow-md ring-1 ring-black/5"
                 />
-                <figcaption className="text-center text-xs text-[var(--color-ink-soft)] mt-2">Egreso</figcaption>
+                <figcaption className="text-center text-xs font-medium text-[var(--color-ink-soft)] mt-2">Egreso</figcaption>
               </figure>
             )}
           </div>

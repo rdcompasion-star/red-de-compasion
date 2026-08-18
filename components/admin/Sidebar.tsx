@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin/dashboard", label: "Panel", icon: "📊" },
   { href: "/admin/personas", label: "Personas", icon: "🧑‍🤝‍🧑" },
   { href: "/admin/auditoria", label: "Auditoría", icon: "🕓", roles: ["SUPER_ADMIN", "ADMIN"] },
+  { href: "/", label: "Sitio público", icon: "🌐", external: true },
 ];
 
 export function AdminSidebar({ userName, userRole }: { userName: string; userRole: string }) {
@@ -25,14 +26,17 @@ export function AdminSidebar({ userName, userRole }: { userName: string; userRol
             <Link
               key={item.href}
               href={item.href}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? "noreferrer" : undefined}
               className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm ${
-                pathname.startsWith(item.href)
+                !item.external && pathname.startsWith(item.href)
                   ? "bg-[var(--color-earth-50)] text-[var(--color-earth-800)] font-medium"
                   : "text-[var(--color-ink-soft)] hover:bg-[var(--color-earth-50)]"
               }`}
             >
               <span aria-hidden>{item.icon}</span>
               {item.label}
+              {item.external && <span aria-hidden className="ml-auto text-xs">↗</span>}
             </Link>
           ))}
         </nav>
@@ -53,8 +57,10 @@ export function AdminSidebar({ userName, userRole }: { userName: string; userRol
           <Link
             key={item.href}
             href={item.href}
+            target={item.external ? "_blank" : undefined}
+            rel={item.external ? "noreferrer" : undefined}
             className={`flex flex-col items-center text-[10px] px-2 py-1 rounded-lg ${
-              pathname.startsWith(item.href) ? "text-[var(--color-earth-800)]" : "text-[var(--color-ink-soft)]"
+              !item.external && pathname.startsWith(item.href) ? "text-[var(--color-earth-800)]" : "text-[var(--color-ink-soft)]"
             }`}
           >
             <span className="text-lg" aria-hidden>

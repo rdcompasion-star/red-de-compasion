@@ -47,6 +47,8 @@ function Section({ title, icon, children }: { title: string; icon: string; child
 }
 
 const inputCls = "w-full rounded-lg border border-[var(--color-earth-100)] px-3 py-2 text-sm";
+const btnGhost =
+  "rounded-lg border border-[var(--color-earth-100)] px-4 py-2 text-sm font-medium text-[var(--color-ink-soft)] hover:bg-[var(--color-earth-50)]";
 const btnCls = "rounded-lg bg-[var(--color-earth-600)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--color-earth-800)] disabled:opacity-60";
 const btnBigCls =
   "w-full rounded-xl bg-[var(--color-earth-600)] text-white px-5 py-3.5 text-base font-semibold hover:bg-[var(--color-earth-800)] disabled:opacity-60 transition";
@@ -111,6 +113,17 @@ export function PersonDetail({ id, canViewConfidential, canPublish }: { id: stri
           Archivar
         </button>
       </div>
+
+      {person.consent?.allowPublicProfile && !person.consent?.revokedAt && (
+        <a
+          href={`/personas/${person.internalCode}`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-[var(--color-earth-600)] hover:underline"
+        >
+          🌐 Ver ficha pública ↗
+        </a>
+      )}
 
       {/* ESTADO */}
       <Section title="Estado" icon="🟢">
@@ -458,34 +471,12 @@ function PhotosPanel({
         </div>
       )}
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const f = new FormData(form);
-          const res = await fetch(`/api/admin/personas/${personId}/fotos`, { method: "POST", body: f });
-          if (res.ok) {
-            notify("Fotografía subida");
-            form.reset();
-            onChange();
-          } else {
-            const err = await res.json();
-            alert(err.error ?? "Error al subir");
-          }
-        }}
-        className="flex flex-wrap gap-2 items-end"
-      >
-        <select name="tipo" required defaultValue={showEgresoPrompt ? "EGRESO" : "INGRESO"} className={inputCls + " w-auto"}>
-          <option value="INGRESO">Foto de ingreso</option>
-          <option value="EGRESO">Foto de egreso</option>
-          <option value="EVOLUCION">Evolución</option>
-        </select>
-        <input type="file" name="file" accept="image/*" required className="text-sm" />
-        <input name="descripcion" placeholder="Descripción" className={inputCls + " w-auto"} />
-        <button type="submit" className={btnCls}>
-          Subir
-        </button>
-      </form>
+      <PhotoUploadForm
+        personId={personId}
+        defaultTipo={showEgresoPrompt ? "EGRESO" : "INGRESO"}
+        onChange={onChange}
+        notify={notify}
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {photos.map((ph) => (
@@ -520,6 +511,71 @@ function PhotosPanel({
   );
 }
 
+function PhotoUploadForm({
+  personId,
+  defaultTipo,
+  onChange,
+  notify,
+}: {
+  personId: string;
+  defaultTipo: "INGRESO" | "EGRESO";
+  onChange: () => void;
+  notify: (m: string) => void;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [tipo, setTipo] = useState(defaultTipo);
+  const [descripcion, setDescripcion] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUpload() {
+    if (!file) return;
+    setUploading(true);
+    const f = new FormData();
+    f.append("file", file);
+    f.append("tipo", tipo);
+    if (descripcion) f.append("descripcion", descripcion);
+    const res = await fetch(`/api/admin/personas/${personId}/fotos`, { method: "POST", body: f });
+    setUploading(false);
+    if (res.ok) {
+      notify("Fotografía subida");
+      setFile(null);
+      setDescripcion("");
+      onChange();
+    } else {
+      const err = await res.json();
+      alert(err.error ?? "Error al subir");
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2 items-center">
+      <select value={tipo} onChange={(e) => setTipo(e.target.value as "INGRESO" | "EGRESO")} className={inputCls + " w-auto"}>
+        <option value="INGRESO">Foto de ingreso</option>
+        <option value="EGRESO">Foto de egreso</option>
+        <option value="EVOLUCION">Evolución</option>
+      </select>
+      <label className={btnGhost + " cursor-pointer"}>
+        {file ? file.name : "Elegir fotografía"}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
+        />
+      </label>
+      <input
+        value={descripcion}
+        onChange={(e) => setDescripcion(e.target.value)}
+        placeholder="Descripción"
+        className={inputCls + " w-auto"}
+      />
+      <button type="button" disabled={!file || uploading} onClick={handleUpload} className={btnCls}>
+        {uploading ? "Subiendo..." : "Subir fotografía"}
+      </button>
+    </div>
+  );
+}
+
 function DocumentsPanel({
   personId,
   documents,
@@ -534,30 +590,7 @@ function DocumentsPanel({
 }) {
   return (
     <div className="space-y-4">
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const f = new FormData(form);
-          const res = await fetch(`/api/admin/personas/${personId}/documentos`, { method: "POST", body: f });
-          if (res.ok) {
-            notify("Documento subido");
-            form.reset();
-            onChange();
-          } else {
-            const err = await res.json();
-            alert(err.error ?? "Error al subir");
-          }
-        }}
-        className="flex flex-wrap gap-2 items-end"
-      >
-        <input name="tipo" placeholder="Tipo (ej. Ficha de ingreso)" required className={inputCls + " w-auto"} />
-        <input type="file" name="file" required className="text-sm" />
-        <input name="descripcion" placeholder="Descripción" className={inputCls + " w-auto"} />
-        <button type="submit" className={btnCls}>
-          Subir
-        </button>
-      </form>
+      <DocumentUploadForm personId={personId} onChange={onChange} notify={notify} />
 
       <ul className="divide-y divide-[var(--color-earth-100)]">
         {documents.map((d) => (
@@ -573,6 +606,66 @@ function DocumentsPanel({
         ))}
         {documents.length === 0 && <p className="text-sm text-[var(--color-ink-soft)] py-2">Sin documentos.</p>}
       </ul>
+    </div>
+  );
+}
+
+function DocumentUploadForm({
+  personId,
+  onChange,
+  notify,
+}: {
+  personId: string;
+  onChange: () => void;
+  notify: (m: string) => void;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [tipo, setTipo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUpload() {
+    if (!file || !tipo) return;
+    setUploading(true);
+    const f = new FormData();
+    f.append("file", file);
+    f.append("tipo", tipo);
+    if (descripcion) f.append("descripcion", descripcion);
+    const res = await fetch(`/api/admin/personas/${personId}/documentos`, { method: "POST", body: f });
+    setUploading(false);
+    if (res.ok) {
+      notify("Documento subido");
+      setFile(null);
+      setTipo("");
+      setDescripcion("");
+      onChange();
+    } else {
+      const err = await res.json();
+      alert(err.error ?? "Error al subir");
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2 items-center">
+      <input
+        value={tipo}
+        onChange={(e) => setTipo(e.target.value)}
+        placeholder="Tipo (ej. Ficha de ingreso)"
+        className={inputCls + " w-auto"}
+      />
+      <label className={btnGhost + " cursor-pointer"}>
+        {file ? file.name : "Elegir documento"}
+        <input type="file" className="hidden" onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])} />
+      </label>
+      <input
+        value={descripcion}
+        onChange={(e) => setDescripcion(e.target.value)}
+        placeholder="Descripción"
+        className={inputCls + " w-auto"}
+      />
+      <button type="button" disabled={!file || !tipo || uploading} onClick={handleUpload} className={btnCls}>
+        {uploading ? "Subiendo..." : "Subir documento"}
+      </button>
     </div>
   );
 }
