@@ -30,6 +30,11 @@ export default function NewPersonPage() {
     nameVisibility: "CODE",
   });
 
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
   async function handleCreate() {
     setSaving(true);
     setError(null);
@@ -54,12 +59,21 @@ export default function NewPersonPage() {
     }
   }
 
-  async function handlePhotoUpload(file: File) {
-    if (!personId) return;
+  function handleSelectPhoto(file: File) {
+    setSelectedPhoto(file);
+    setPhotoUploaded(false);
+    setPhotoPreviewUrl(URL.createObjectURL(file));
+  }
+
+  async function handleUploadPhoto() {
+    if (!personId || !selectedPhoto) return;
+    setUploadingPhoto(true);
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", selectedPhoto);
     form.append("tipo", "INGRESO");
-    await fetch(`/api/admin/personas/${personId}/fotos`, { method: "POST", body: form });
+    const res = await fetch(`/api/admin/personas/${personId}/fotos`, { method: "POST", body: form });
+    setUploadingPhoto(false);
+    if (res.ok) setPhotoUploaded(true);
   }
 
   async function handleSaveConsent() {
@@ -80,15 +94,19 @@ export default function NewPersonPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-2xl space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Nueva persona</h1>
-        <p className="text-sm text-[var(--color-ink-soft)] mt-1">Paso {step + 1} de {STEPS.length}: {STEPS[step]}</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-[var(--color-ink)]">Nueva persona</h1>
+        <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-[var(--color-earth-50)] px-3 py-1.5 text-sm font-medium text-[var(--color-earth-800)]">
+          Paso {step + 1} de {STEPS.length}
+          <span className="text-[var(--color-earth-600)]">·</span>
+          {STEPS[step]}
+        </p>
       </div>
 
       <div className="flex gap-1.5">
         {STEPS.map((s, i) => (
-          <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-[var(--color-earth-600)]" : "bg-[var(--color-earth-100)]"}`} />
+          <div key={s} className={`h-2 flex-1 rounded-full ${i <= step ? "bg-[var(--color-earth-600)]" : "bg-[var(--color-earth-100)]"}`} />
         ))}
       </div>
 
@@ -150,7 +168,7 @@ export default function NewPersonPage() {
             value={entry.modalidadIngreso}
             onChange={(e) => setEntry({ ...entry, modalidadIngreso: e.target.value })}
           />
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-3">
             <button className={btnGhost} onClick={() => setStep(0)}>
               Atrás
             </button>
@@ -162,23 +180,45 @@ export default function NewPersonPage() {
       )}
 
       {step === 2 && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p className="text-sm text-[var(--color-ink-soft)]">
             Persona creada con código <strong>{internalCode}</strong>. Puedes subir una fotografía de ingreso ahora o
             hacerlo después desde su ficha.
           </p>
-          <input
-            type="file"
-            accept="image/*"
-            className="text-sm"
-            onChange={(e) => e.target.files?.[0] && handlePhotoUpload(e.target.files[0])}
-          />
-          <div className="flex justify-between">
-            <button className={btnGhost} onClick={() => setStep(3)}>
-              Omitir
+
+          <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--color-earth-100)] bg-[var(--color-earth-50)] p-6 text-center cursor-pointer hover:bg-[var(--color-earth-100)]/40 transition">
+            {photoPreviewUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photoPreviewUrl} alt="Vista previa" className="h-32 w-32 rounded-lg object-cover" />
+            ) : (
+              <span className="text-3xl" aria-hidden>
+                📷
+              </span>
+            )}
+            <span className="text-sm font-medium text-[var(--color-earth-800)]">
+              {selectedPhoto ? selectedPhoto.name : "Toca para elegir una fotografía"}
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => e.target.files?.[0] && handleSelectPhoto(e.target.files[0])}
+            />
+          </label>
+
+          {selectedPhoto && !photoUploaded && (
+            <button className={btnCls + " w-full"} disabled={uploadingPhoto} onClick={handleUploadPhoto}>
+              {uploadingPhoto ? "Subiendo..." : "Subir fotografía"}
+            </button>
+          )}
+          {photoUploaded && <p className="text-sm text-[var(--color-sage-700)]">✓ Fotografía subida correctamente.</p>}
+
+          <div className="flex justify-between gap-3">
+            <button className={btnGhost} onClick={() => setStep(1)}>
+              Atrás
             </button>
             <button className={btnCls} onClick={() => setStep(3)}>
-              Siguiente
+              {selectedPhoto && !photoUploaded ? "Omitir y continuar" : "Siguiente"}
             </button>
           </div>
         </div>
@@ -212,7 +252,7 @@ export default function NewPersonPage() {
             <option value="FIRST_NAME">Primer nombre</option>
             <option value="FULL">Nombre completo</option>
           </select>
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-3">
             <button className={btnGhost} onClick={() => setStep(2)}>
               Atrás
             </button>

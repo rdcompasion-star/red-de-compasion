@@ -48,6 +48,8 @@ function Section({ title, icon, children }: { title: string; icon: string; child
 
 const inputCls = "w-full rounded-lg border border-[var(--color-earth-100)] px-3 py-2 text-sm";
 const btnCls = "rounded-lg bg-[var(--color-earth-600)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--color-earth-800)] disabled:opacity-60";
+const btnBigCls =
+  "w-full rounded-xl bg-[var(--color-earth-600)] text-white px-5 py-3.5 text-base font-semibold hover:bg-[var(--color-earth-800)] disabled:opacity-60 transition";
 
 export function PersonDetail({ id, canViewConfidential, canPublish }: { id: string; canViewConfidential: boolean; canPublish: boolean }) {
   const router = useRouter();
@@ -134,9 +136,12 @@ export function PersonDetail({ id, canViewConfidential, canPublish }: { id: stri
             ))}
           </select>
           <textarea name="observaciones" placeholder="Observaciones del cambio (opcional)" className={inputCls} rows={2} />
-          <button type="submit" className={btnCls}>
+          <button type="submit" className={btnBigCls}>
             Guardar cambio de estado
           </button>
+          <p className="text-xs text-center text-[var(--color-ink-soft)]">
+            El cambio queda registrado en el historial y, si corresponde, se refleja de inmediato en el sitio público.
+          </p>
         </form>
 
         {person.statusHistory?.length > 0 && (
@@ -286,7 +291,14 @@ export function PersonDetail({ id, canViewConfidential, canPublish }: { id: stri
 
       {/* FOTOGRAFIAS */}
       <Section title="Fotografías" icon="📷">
-        <PhotosPanel personId={id} photos={person.photos ?? []} canPublish={canPublish} onChange={() => load()} notify={notify} />
+        <PhotosPanel
+          personId={id}
+          photos={person.photos ?? []}
+          canPublish={canPublish}
+          currentStatusCode={person.currentStatusCode}
+          onChange={() => load()}
+          notify={notify}
+        />
       </Section>
 
       {/* DOCUMENTOS */}
@@ -385,10 +397,13 @@ function ConsentForm({
       {consent?.revokedAt && (
         <p className="text-xs text-red-700">Autorización revocada el {new Date(consent.revokedAt).toLocaleDateString("es-CL")}</p>
       )}
+      <button type="submit" className={btnBigCls}>
+        Guardar y publicar autorizaciones
+      </button>
+      <p className="text-xs text-center text-[var(--color-ink-soft)]">
+        Al guardar, el sitio público se actualiza de inmediato según lo marcado arriba.
+      </p>
       <div className="flex gap-2">
-        <button type="submit" className={btnCls}>
-          Guardar autorizaciones
-        </button>
         <button
           type="button"
           onClick={async () => {
@@ -409,10 +424,13 @@ function ConsentForm({
   );
 }
 
+const COMPLETION_STATUSES = ["EGRESADO", "REINSERTADO", "REINSERTADO_TRABAJANDO"];
+
 function PhotosPanel({
   personId,
   photos,
   canPublish,
+  currentStatusCode,
   onChange,
   notify,
 }: {
@@ -420,11 +438,26 @@ function PhotosPanel({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   photos: any[];
   canPublish: boolean;
+  currentStatusCode: string;
   onChange: () => void;
   notify: (m: string) => void;
 }) {
+  const hasEgreso = photos.some((p) => p.tipo === "EGRESO");
+  const showEgresoPrompt = COMPLETION_STATUSES.includes(currentStatusCode) && !hasEgreso;
+
   return (
     <div className="space-y-4">
+      {showEgresoPrompt && (
+        <div className="rounded-xl border border-[var(--color-sage-500)] bg-[var(--color-sage-100)] p-4">
+          <p className="text-sm font-medium text-[var(--color-sage-700)]">
+            Esta persona completó su proceso — ¿agregamos su fotografía de egreso?
+          </p>
+          <p className="text-xs text-[var(--color-ink-soft)] mt-1">
+            Permite mostrar la evolución (antes/después) cuando exista autorización de publicación.
+          </p>
+        </div>
+      )}
+
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -442,7 +475,7 @@ function PhotosPanel({
         }}
         className="flex flex-wrap gap-2 items-end"
       >
-        <select name="tipo" required className={inputCls + " w-auto"}>
+        <select name="tipo" required defaultValue={showEgresoPrompt ? "EGRESO" : "INGRESO"} className={inputCls + " w-auto"}>
           <option value="INGRESO">Foto de ingreso</option>
           <option value="EGRESO">Foto de egreso</option>
           <option value="EVOLUCION">Evolución</option>

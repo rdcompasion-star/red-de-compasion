@@ -35,7 +35,12 @@ export async function GET(req: NextRequest) {
             }
           : {}),
       },
-      include: { identity: true, entryInfo: true, exitInfo: true },
+      include: {
+        identity: true,
+        entryInfo: true,
+        exitInfo: true,
+        photos: { select: { id: true, tipo: true }, orderBy: { fecha: "asc" }, take: 5 },
+      },
       orderBy: { updatedAt: "desc" },
     });
 

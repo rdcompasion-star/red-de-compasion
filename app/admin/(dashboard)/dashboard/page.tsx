@@ -64,14 +64,20 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        {[{ label: "Total registradas", value: total }, ...porEstado.map((e) => ({ label: e.label, value: e.count })), { label: "Archivadas", value: archivados }].map(
-          (t) => (
-            <div key={t.label} className="rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-4 text-center">
-              <div className="text-2xl font-semibold text-[var(--color-earth-800)]">{t.value}</div>
-              <div className="mt-1 text-xs text-[var(--color-ink-soft)]">{t.label}</div>
-            </div>
-          )
-        )}
+        {[
+          { label: "Total registradas", value: total, href: "/admin/personas" },
+          ...porEstado.map((e) => ({ label: e.label, value: e.count, href: `/admin/personas?estado=${e.code}` })),
+          { label: "Archivadas", value: archivados, href: "/admin/personas?archived=true" },
+        ].map((t) => (
+          <Link
+            key={t.label}
+            href={t.href}
+            className="rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-4 text-center hover:border-[var(--color-earth-400)] hover:shadow-sm transition"
+          >
+            <div className="text-2xl font-semibold text-[var(--color-earth-800)]">{t.value}</div>
+            <div className="mt-1 text-xs text-[var(--color-ink-soft)]">{t.label}</div>
+          </Link>
+        ))}
       </div>
 
       {alertas.length > 0 && (

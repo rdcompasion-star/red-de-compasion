@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { PeopleTable } from "@/components/admin/PeopleTable";
 
@@ -13,7 +14,9 @@ export default function AdminPeoplePage() {
           + Nueva persona
         </Link>
       </div>
-      <PeopleTable />
+      <Suspense fallback={<p className="text-sm text-[var(--color-ink-soft)]">Cargando...</p>}>
+        <PeopleTable />
+      </Suspense>
     </div>
   );
 }
