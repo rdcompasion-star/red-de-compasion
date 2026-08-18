@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ImageModal } from "@/components/Modal";
+import { BirthDateInput } from "@/components/BirthDateInput";
 
+// incluye codigos historicos (ej. REINSERTADO) solo para poder mostrar el label
+// de personas que ya tenian ese estado asignado antes de retirarlo de las opciones
 const STATUS_OPTIONS = [
   { code: "RESIDENTE_ACTIVO", label: "Residente activo", colorHex: "#2f9e6e" },
   { code: "EGRESADO", label: "Egresado", colorHex: "#3b6ea5" },
@@ -13,6 +16,7 @@ const STATUS_OPTIONS = [
   { code: "REINSERTADO_TRABAJANDO", label: "Reinsertado + trabajando", colorHex: "#3f9142" },
   { code: "ABANDONO", label: "Abandonó el proceso", colorHex: "#8a8a8a" },
 ];
+const SELECTABLE_STATUS_OPTIONS = STATUS_OPTIONS.filter((s) => s.code !== "REINSERTADO");
 const EMPLOYMENT_OPTIONS = [
   ["NO_TRABAJA", "No trabaja"],
   ["BUSCA_EMPLEO", "Busca empleo"],
@@ -72,12 +76,14 @@ export function PersonDetail({
   const [person, setPerson] = useState<Person | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingMsg, setSavingMsg] = useState<string | null>(null);
+  const [birthDate, setBirthDate] = useState("");
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/admin/personas/${id}`);
     if (res.ok) {
       const data = await res.json();
       setPerson(data.persona);
+      setBirthDate(data.persona?.identity?.fechaNacimiento?.slice(0, 10) ?? "");
     }
     setLoading(false);
   }, [id]);
@@ -179,7 +185,7 @@ export function PersonDetail({
           className="space-y-3"
         >
           <select name="statusCode" defaultValue={person.currentStatusCode} className={inputCls}>
-            {STATUS_OPTIONS.map((s) => (
+            {SELECTABLE_STATUS_OPTIONS.map((s) => (
               <option key={s.code} value={s.code}>
                 {s.label}
               </option>
@@ -228,12 +234,14 @@ export function PersonDetail({
         >
           <input name="nombres" defaultValue={person.identity?.nombres ?? ""} placeholder="Nombres" className={inputCls} />
           <input name="apellidos" defaultValue={person.identity?.apellidos ?? ""} placeholder="Apellidos" className={inputCls} />
-          <input
-            type="date"
-            name="fechaNacimiento"
-            defaultValue={person.identity?.fechaNacimiento?.slice(0, 10) ?? ""}
-            className={inputCls}
-          />
+          <div>
+            <label className="block text-xs text-[var(--color-ink-soft)] mb-1">Fecha de nacimiento</label>
+            <BirthDateInput
+              name="fechaNacimiento"
+              value={birthDate}
+              onChange={setBirthDate}
+            />
+          </div>
           <input name="rut" defaultValue={person.identity?.rut ?? ""} placeholder="RUT" className={inputCls} />
           <input name="telefono" defaultValue={person.identity?.telefono ?? ""} placeholder="Teléfono" className={inputCls} />
           <input name="correo" defaultValue={person.identity?.correo ?? ""} placeholder="Correo" className={inputCls} />

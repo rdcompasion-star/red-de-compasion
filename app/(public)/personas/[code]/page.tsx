@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { buildPublicProfile } from "@/lib/publicProfile";
 import { StatusBadge } from "@/components/StatusBadge";
+import { formatDatePublic } from "@/lib/domain";
 
 export default async function PublicPersonPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
@@ -79,16 +80,16 @@ export default async function PublicPersonPage({ params }: { params: Promise<{ c
             <dd className="text-lg font-medium text-[var(--color-ink)]">{profile.age} años</dd>
           </div>
         )}
-        {profile.entryYear !== null && (
+        {profile.entryDate !== null && (
           <div className="rounded-xl bg-[var(--color-earth-50)] p-4">
-            <dt className="text-xs text-[var(--color-ink-soft)]">Año de ingreso</dt>
-            <dd className="text-lg font-medium text-[var(--color-ink)]">{profile.entryYear}</dd>
+            <dt className="text-xs text-[var(--color-ink-soft)]">Fecha de ingreso</dt>
+            <dd className="text-lg font-medium text-[var(--color-ink)]">{formatDatePublic(profile.entryDate)}</dd>
           </div>
         )}
-        {profile.exitYear !== null && (
+        {profile.exitDate !== null && (
           <div className="rounded-xl bg-[var(--color-earth-50)] p-4">
-            <dt className="text-xs text-[var(--color-ink-soft)]">Año de egreso</dt>
-            <dd className="text-lg font-medium text-[var(--color-ink)]">{profile.exitYear}</dd>
+            <dt className="text-xs text-[var(--color-ink-soft)]">Fecha de egreso</dt>
+            <dd className="text-lg font-medium text-[var(--color-ink)]">{formatDatePublic(profile.exitDate)}</dd>
           </div>
         )}
       </dl>

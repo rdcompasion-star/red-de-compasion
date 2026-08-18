@@ -18,6 +18,8 @@ type PersonRow = {
   updatedAt: string;
 };
 
+// incluye codigos historicos (ej. REINSERTADO) solo para poder mostrar el label
+// de personas que ya tenian ese estado asignado antes de retirarlo de las opciones
 const STATUS_LABELS: Record<string, { label: string; colorHex: string }> = {
   RESIDENTE_ACTIVO: { label: "Residente activo", colorHex: "#2f9e6e" },
   EGRESADO: { label: "Egresado", colorHex: "#3b6ea5" },
@@ -25,6 +27,7 @@ const STATUS_LABELS: Record<string, { label: string; colorHex: string }> = {
   REINSERTADO_TRABAJANDO: { label: "Reinsertado + trabajando", colorHex: "#3f9142" },
   ABANDONO: { label: "Abandonó", colorHex: "#8a8a8a" },
 };
+const SELECTABLE_STATUS_ENTRIES = Object.entries(STATUS_LABELS).filter(([code]) => code !== "REINSERTADO");
 
 function bestPhoto(photos: { id: string; tipo: string }[]) {
   return photos.find((p) => p.tipo === "INGRESO") ?? photos[0] ?? null;
@@ -114,7 +117,7 @@ export function PeopleTable() {
           className="rounded-lg border border-[var(--color-earth-100)] px-3 py-2.5 text-sm"
         >
           <option value="">Todos los estados</option>
-          {Object.entries(STATUS_LABELS).map(([code, s]) => (
+          {SELECTABLE_STATUS_ENTRIES.map(([code, s]) => (
             <option key={code} value={code}>
               {s.label}
             </option>

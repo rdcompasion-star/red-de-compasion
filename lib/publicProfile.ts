@@ -39,21 +39,22 @@ export function buildPublicProfile(
   const status = statusMap[p.currentStatusCode];
 
   const authorizedPhotos = (p.photos ?? []).filter((ph) => ph.publicAuthorized);
+  const ingresoPhoto = authorizedPhotos.find((ph) => ph.tipo === "INGRESO");
+  const egresoPhoto = authorizedPhotos.find((ph) => ph.tipo === "EGRESO");
   const bestPhoto =
-    authorizedPhotos.find((ph) => ph.tipo === "EGRESO") ??
-    authorizedPhotos.find((ph) => ph.tipo === "EVOLUCION") ??
-    authorizedPhotos.find((ph) => ph.tipo === "INGRESO") ??
-    authorizedPhotos[0];
+    egresoPhoto ?? authorizedPhotos.find((ph) => ph.tipo === "EVOLUCION") ?? ingresoPhoto ?? authorizedPhotos[0];
 
   return {
     code: p.internalCode,
     displayName,
     age: consent.allowAge ? calcAge(identity?.fechaNacimiento) : null,
-    entryYear: consent.allowEntryYear ? p.entryInfo?.fechaIngreso?.getFullYear() ?? null : null,
-    exitYear: consent.allowExitYear ? p.exitInfo?.fechaEgreso?.getFullYear() ?? null : null,
+    entryDate: consent.allowEntryYear && p.entryInfo?.fechaIngreso ? p.entryInfo.fechaIngreso.toISOString() : null,
+    exitDate: consent.allowExitYear && p.exitInfo?.fechaEgreso ? p.exitInfo.fechaEgreso.toISOString() : null,
     status: consent.allowReinsertionStatus && status ? status : null,
     hasPhoto: consent.allowPhoto,
     photoUrl: consent.allowPhoto && bestPhoto ? `/api/public/fotos/${bestPhoto.id}` : null,
+    ingresoPhotoUrl: consent.allowPhoto && ingresoPhoto ? `/api/public/fotos/${ingresoPhoto.id}` : null,
+    egresoPhotoUrl: consent.allowPhoto && egresoPhoto ? `/api/public/fotos/${egresoPhoto.id}` : null,
   };
 }
 

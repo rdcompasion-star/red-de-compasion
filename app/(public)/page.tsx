@@ -13,7 +13,6 @@ export default async function HomePage() {
   const resumen = {
     residentesActivos: people.filter((p) => p.currentStatusCode === "RESIDENTE_ACTIVO").length,
     egresados: people.filter((p) => p.currentStatusCode === "EGRESADO").length,
-    reinsertados: people.filter((p) => p.currentStatusCode === "REINSERTADO").length,
     reinsertadosTrabajando: people.filter((p) => p.currentStatusCode === "REINSERTADO_TRABAJANDO").length,
     abandonos: people.filter((p) => p.currentStatusCode === "ABANDONO").length,
   };
@@ -22,7 +21,6 @@ export default async function HomePage() {
     { label: "Personas registradas", value: total, href: "/personas" },
     { label: "Residentes activos", value: resumen.residentesActivos, href: "/personas?estado=RESIDENTE_ACTIVO" },
     { label: "Egresados", value: resumen.egresados, href: "/personas?estado=EGRESADO" },
-    { label: "Reinsertados", value: resumen.reinsertados, href: "/personas?estado=REINSERTADO" },
     {
       label: "Reinsertados y trabajando",
       value: resumen.reinsertadosTrabajando,

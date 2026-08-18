@@ -1,5 +1,11 @@
 /** Calculo de edad y duracion de proceso: nunca se guardan como valores fijos. */
 
+/** Formatea una fecha como "18 ago 2026" para mostrar en el sitio publico. */
+export function formatDatePublic(date: Date | string | null | undefined): string | null {
+  if (!date) return null;
+  return new Date(date).toLocaleDateString("es-CL", { day: "2-digit", month: "short", year: "numeric" });
+}
+
 export function calcAge(birthDate: Date | string | null | undefined, at: Date = new Date()): number | null {
   if (!birthDate) return null;
   const b = new Date(birthDate);
@@ -30,7 +36,7 @@ export function calcDuration(start: Date | string, end: Date | string | null | u
 export const DEFAULT_STATUS_OPTIONS = [
   { code: "RESIDENTE_ACTIVO", label: "Residente activo", colorHex: "#2f9e6e", isSystem: true, order: 1 },
   { code: "EGRESADO", label: "Egresado", colorHex: "#3b6ea5", isSystem: true, order: 2 },
-  { code: "REINSERTADO", label: "Reinsertado", colorHex: "#7c5cbf", isSystem: true, order: 3 },
+  { code: "REINSERTADO", label: "Reinsertado", colorHex: "#7c5cbf", isSystem: true, order: 3, active: false },
   {
     code: "REINSERTADO_TRABAJANDO",
     label: "Reinsertado + trabajando",

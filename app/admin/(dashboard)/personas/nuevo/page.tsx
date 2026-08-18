@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BirthDateInput } from "@/components/BirthDateInput";
 
 const inputCls = "w-full rounded-lg border border-[var(--color-earth-100)] px-3 py-2.5 text-sm";
 const btnCls = "rounded-lg bg-[var(--color-earth-600)] text-white px-5 py-2.5 text-sm font-medium hover:bg-[var(--color-earth-800)] disabled:opacity-60";
@@ -128,13 +129,13 @@ export default function NewPersonPage() {
             value={identity.apellidos}
             onChange={(e) => setIdentity({ ...identity, apellidos: e.target.value })}
           />
-          <input
-            type="date"
-            placeholder="Fecha de nacimiento"
-            className={inputCls}
-            value={identity.fechaNacimiento}
-            onChange={(e) => setIdentity({ ...identity, fechaNacimiento: e.target.value })}
-          />
+          <div>
+            <label className="block text-xs text-[var(--color-ink-soft)] mb-1">Fecha de nacimiento</label>
+            <BirthDateInput
+              value={identity.fechaNacimiento}
+              onChange={(v) => setIdentity({ ...identity, fechaNacimiento: v })}
+            />
+          </div>
           <input
             placeholder="RUT (opcional)"
             className={inputCls}

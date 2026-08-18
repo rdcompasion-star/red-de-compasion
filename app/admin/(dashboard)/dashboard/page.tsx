@@ -57,7 +57,7 @@ export default async function AdminDashboardPage() {
         </div>
         <Link
           href="/admin/personas/nuevo"
-          className="rounded-full bg-[var(--color-earth-600)] text-white px-4 py-2.5 text-sm font-medium hover:bg-[var(--color-earth-800)]"
+          className="inline-flex items-center justify-center text-center rounded-full bg-[var(--color-earth-600)] text-white px-4 py-2.5 font-display tracking-wide text-base hover:bg-[var(--color-earth-800)]"
         >
           + Nueva persona
         </Link>
