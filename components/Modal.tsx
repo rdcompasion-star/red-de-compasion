@@ -1,7 +1,11 @@
 "use client";
 
+import { createPortal } from "react-dom";
+
 export function ImageModal({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 animate-fade-in"
       onClick={onClose}
@@ -22,6 +26,7 @@ export function ImageModal({ src, alt, onClose }: { src: string; alt: string; on
         onClick={(e) => e.stopPropagation()}
         className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl animate-modal-pop"
       />
-    </div>
+    </div>,
+    document.body
   );
 }

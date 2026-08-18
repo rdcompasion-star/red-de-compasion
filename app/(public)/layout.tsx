@@ -9,7 +9,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         src="/fondo.jpg"
         alt=""
         aria-hidden
-        className="fixed inset-0 -z-10 h-full w-full object-cover opacity-[0.08] pointer-events-none select-none"
+        className="fixed inset-0 -z-10 h-full w-full object-cover opacity-50 pointer-events-none select-none"
       />
       <PublicHeader />
       <main className="flex-1 mx-auto w-full max-w-5xl px-4 sm:px-6 py-10">{children}</main>
