@@ -87,7 +87,7 @@ export default async function PublicStatsPage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Estadísticas</h1>
+        <h1 className="font-display tracking-wide text-4xl text-[var(--color-ink)]">Estadísticas</h1>
         <p className="text-sm text-[var(--color-ink-soft)] mt-1">
           Datos agregados del proceso del centro. No se muestra información que permita identificar a una persona
           en particular.

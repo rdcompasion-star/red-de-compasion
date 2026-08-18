@@ -11,6 +11,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       id={id}
       canViewConfidential={can(session?.user, "viewConfidential")}
       canPublish={can(session?.user, "publish")}
+      canDelete={can(session?.user, "delete")}
     />
   );
 }

@@ -33,7 +33,7 @@ export default async function PublicPersonPage({ params }: { params: Promise<{ c
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="text-center space-y-3">
         <p className="text-xs uppercase tracking-wide text-[var(--color-earth-600)]">{profile.code}</p>
-        <h1 className="text-3xl font-semibold text-[var(--color-ink)]">{profile.displayName}</h1>
+        <h1 className="font-display tracking-wide text-4xl text-[var(--color-ink)]">{profile.displayName}</h1>
         {profile.status && <StatusBadge label={profile.status.label} colorHex={profile.status.colorHex} />}
       </div>
 

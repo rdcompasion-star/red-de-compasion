@@ -194,7 +194,7 @@ export function PeopleTable() {
                 <Link
                   key={p.id}
                   href={`/admin/personas/${p.id}`}
-                  className="block rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-4"
+                  className="animate-fade-in-up block rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-4 transition-shadow hover:shadow-md"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex items-center gap-3">

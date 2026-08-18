@@ -32,7 +32,7 @@ export default async function HomePage() {
     <div className="space-y-14">
       <section className="text-center space-y-4 py-6">
         <p className="uppercase tracking-wide text-xs text-[var(--color-earth-600)] font-medium">Transparencia</p>
-        <h1 className="text-3xl sm:text-4xl font-semibold text-[var(--color-ink)]">
+        <h1 className="font-display tracking-wide text-4xl sm:text-5xl text-[var(--color-ink)]">
           Personas que han pasado por nuestro proceso
         </h1>
         <p className="max-w-2xl mx-auto text-[var(--color-ink-soft)]">

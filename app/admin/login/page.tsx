@@ -65,10 +65,9 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-cream)] px-4">
       <div className="mb-8 text-center">
-        <span className="text-2xl" aria-hidden>
-          🌿
-        </span>
-        <h1 className="text-lg font-semibold text-[var(--color-earth-800)] mt-2">Red de Compasión</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.jpg" alt="Red de Compasión" className="h-14 w-14 rounded-full object-cover mx-auto" />
+        <h1 className="font-display tracking-wide text-2xl text-[var(--color-earth-800)] mt-2">Red de Compasión</h1>
         <p className="text-sm text-[var(--color-ink-soft)]">Panel privado del equipo</p>
       </div>
       <Suspense>

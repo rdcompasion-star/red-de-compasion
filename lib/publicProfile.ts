@@ -1,5 +1,5 @@
 import { calcAge, resolvePublicDisplayName } from "@/lib/domain";
-import type { Person, PersonIdentity, PersonPublicSettings, PersonConsent, PersonEntry, PersonExit } from "@prisma/client";
+import type { Person, PersonIdentity, PersonPublicSettings, PersonConsent, PersonEntry, PersonExit, Photo } from "@prisma/client";
 
 export type PersonWithPublicRelations = Person & {
   identity: PersonIdentity | null;
@@ -7,6 +7,7 @@ export type PersonWithPublicRelations = Person & {
   consent: PersonConsent | null;
   entryInfo: PersonEntry | null;
   exitInfo: PersonExit | null;
+  photos?: Pick<Photo, "id" | "tipo" | "publicAuthorized">[];
 };
 
 export type StatusInfo = { label: string; colorHex: string };
@@ -37,6 +38,13 @@ export function buildPublicProfile(
 
   const status = statusMap[p.currentStatusCode];
 
+  const authorizedPhotos = (p.photos ?? []).filter((ph) => ph.publicAuthorized);
+  const bestPhoto =
+    authorizedPhotos.find((ph) => ph.tipo === "EGRESO") ??
+    authorizedPhotos.find((ph) => ph.tipo === "EVOLUCION") ??
+    authorizedPhotos.find((ph) => ph.tipo === "INGRESO") ??
+    authorizedPhotos[0];
+
   return {
     code: p.internalCode,
     displayName,
@@ -45,6 +53,7 @@ export function buildPublicProfile(
     exitYear: consent.allowExitYear ? p.exitInfo?.fechaEgreso?.getFullYear() ?? null : null,
     status: consent.allowReinsertionStatus && status ? status : null,
     hasPhoto: consent.allowPhoto,
+    photoUrl: consent.allowPhoto && bestPhoto ? `/api/public/fotos/${bestPhoto.id}` : null,
   };
 }
 

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/StatusBadge";
+import { ImageModal } from "@/components/Modal";
 
 const STATUS_OPTIONS = [
   { code: "RESIDENTE_ACTIVO", label: "Residente activo", colorHex: "#2f9e6e" },
@@ -37,7 +38,7 @@ function calcAgeLocal(birth: string | null) {
 
 function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-5 space-y-4">
+    <section className="animate-fade-in-up rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-5 space-y-4">
       <h2 className="font-medium text-[var(--color-ink)] flex items-center gap-2">
         <span aria-hidden>{icon}</span> {title}
       </h2>
@@ -53,7 +54,17 @@ const btnCls = "rounded-lg bg-[var(--color-earth-600)] text-white px-4 py-2 text
 const btnBigCls =
   "w-full rounded-xl bg-[var(--color-earth-600)] text-white px-5 py-3.5 text-base font-semibold hover:bg-[var(--color-earth-800)] disabled:opacity-60 transition";
 
-export function PersonDetail({ id, canViewConfidential, canPublish }: { id: string; canViewConfidential: boolean; canPublish: boolean }) {
+export function PersonDetail({
+  id,
+  canViewConfidential,
+  canPublish,
+  canDelete,
+}: {
+  id: string;
+  canViewConfidential: boolean;
+  canPublish: boolean;
+  canDelete: boolean;
+}) {
   const router = useRouter();
   const [person, setPerson] = useState<Person | null>(null);
   const [loading, setLoading] = useState(true);
@@ -102,16 +113,33 @@ export function PersonDetail({ id, canViewConfidential, canPublish }: { id: stri
             {statusInfo && <StatusBadge label={statusInfo.label} colorHex={statusInfo.colorHex} />}
           </div>
         </div>
-        <button
-          onClick={async () => {
-            if (!confirm("¿Archivar esta persona? Podrá recuperarse luego.")) return;
-            await fetch(`/api/admin/personas/${id}`, { method: "DELETE" });
-            router.push("/admin/personas");
-          }}
-          className="text-sm text-red-700 hover:underline"
-        >
-          Archivar
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={async () => {
+              if (!confirm("¿Archivar esta persona? Podrá recuperarse luego.")) return;
+              await fetch(`/api/admin/personas/${id}`, { method: "DELETE" });
+              router.push("/admin/personas");
+            }}
+            className="text-sm text-red-700 hover:underline"
+          >
+            Archivar
+          </button>
+          {canDelete && (
+            <button
+              onClick={async () => {
+                if (!confirm(`¿Eliminar DEFINITIVAMENTE a ${person.internalCode}? Esto borra todos sus datos, fotos y documentos. No se puede deshacer.`))
+                  return;
+                if (!confirm("Confirma una vez más: esta acción es irreversible. ¿Eliminar de todas formas?")) return;
+                const res = await fetch(`/api/admin/personas/${id}?hard=true`, { method: "DELETE" });
+                if (res.ok) router.push("/admin/personas");
+                else alert("No se pudo eliminar.");
+              }}
+              className="text-sm text-red-700 font-medium hover:underline"
+            >
+              Eliminar definitivamente
+            </button>
+          )}
+        </div>
       </div>
 
       {person.consent?.allowPublicProfile && !person.consent?.revokedAt && (
@@ -478,35 +506,74 @@ function PhotosPanel({
         notify={notify}
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {photos.map((ph) => (
-          <div key={ph.id} className="rounded-xl border border-[var(--color-earth-100)] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/api/admin/files/fotos/${ph.id}`} alt={ph.tipo} className="w-full aspect-square object-cover" />
-            <div className="p-2 space-y-1">
-              <p className="text-xs text-[var(--color-ink-soft)]">{ph.tipo}</p>
-              {canPublish && (
-                <label className="flex items-center gap-1.5 text-xs">
-                  <input
-                    type="checkbox"
-                    defaultChecked={ph.publicAuthorized}
-                    onChange={async (e) => {
-                      await fetch(`/api/admin/fotos/${ph.id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ publicAuthorized: e.target.checked }),
-                      });
-                      notify("Visibilidad actualizada");
-                    }}
-                  />
-                  Pública
-                </label>
-              )}
-            </div>
-          </div>
-        ))}
-        {photos.length === 0 && <p className="text-sm text-[var(--color-ink-soft)]">Aún no hay fotografías.</p>}
-      </div>
+      {photos.length === 0 ? (
+        <p className="text-sm text-[var(--color-ink-soft)]">Aún no hay fotografías.</p>
+      ) : (
+        <div className="space-y-5">
+          {[
+            ["INGRESO", "Ingreso"],
+            ["EGRESO", "Egreso"],
+            ["EVOLUCION", "Evolución"],
+          ].map(([tipo, label]) => {
+            const group = photos.filter((ph) => ph.tipo === tipo);
+            if (group.length === 0) return null;
+            return (
+              <div key={tipo}>
+                <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-soft)] mb-2">{label}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {group.map((ph) => (
+                    <PhotoCard key={ph.id} photo={ph} canPublish={canPublish} notify={notify} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PhotoCard({
+  photo,
+  canPublish,
+  notify,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  photo: any;
+  canPublish: boolean;
+  notify: (m: string) => void;
+}) {
+  const [zoomed, setZoomed] = useState(false);
+  return (
+    <div className="rounded-xl border border-[var(--color-earth-100)] overflow-hidden">
+      {zoomed && (
+        <ImageModal src={`/api/admin/files/fotos/${photo.id}`} alt={photo.tipo} onClose={() => setZoomed(false)} />
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/api/admin/files/fotos/${photo.id}`}
+        alt={photo.tipo}
+        onClick={() => setZoomed(true)}
+        className="w-full aspect-square object-cover cursor-zoom-in"
+      />
+      {canPublish && (
+        <label className="flex items-center gap-1.5 text-xs p-2">
+          <input
+            type="checkbox"
+            defaultChecked={photo.publicAuthorized}
+            onChange={async (e) => {
+              await fetch(`/api/admin/fotos/${photo.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ publicAuthorized: e.target.checked }),
+              });
+              notify("Visibilidad actualizada");
+            }}
+          />
+          Pública
+        </label>
+      )}
     </div>
   );
 }

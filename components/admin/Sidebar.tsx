@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
@@ -17,9 +18,12 @@ export function AdminSidebar({ userName, userRole }: { userName: string; userRol
   return (
     <>
       <aside className="hidden md:flex md:flex-col w-60 shrink-0 border-r border-[var(--color-earth-100)] bg-[var(--color-paper)] min-h-screen">
-        <div className="p-5 border-b border-[var(--color-earth-100)]">
-          <p className="font-semibold text-[var(--color-earth-800)]">🌿 Red de Compasión</p>
-          <p className="text-xs text-[var(--color-ink-soft)] mt-1">Panel privado</p>
+        <div className="p-5 border-b border-[var(--color-earth-100)] flex items-center gap-2">
+          <Image src="/logo.jpg" alt="" width={28} height={28} className="rounded-full object-cover" />
+          <div>
+            <p className="font-display tracking-wide text-lg text-[var(--color-earth-800)] leading-none">Red de Compasión</p>
+            <p className="text-xs text-[var(--color-ink-soft)] mt-1">Panel privado</p>
+          </div>
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {ITEMS.filter((i) => !i.roles || i.roles.includes(userRole)).map((item) => (

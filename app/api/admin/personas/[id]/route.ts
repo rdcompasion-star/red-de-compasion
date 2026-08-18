@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { can, requirePermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import { apiErrorResponse } from "@/lib/apiError";
+import { deleteUploadedFile } from "@/lib/fileStorage";
 import { z } from "zod";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -147,11 +148,37 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
-    requirePermission(session?.user, "archive");
     const { id } = await params;
+    const hard = new URL(req.url).searchParams.get("hard") === "true";
+
+    if (hard) {
+      requirePermission(session?.user, "delete");
+
+      const person = await prisma.person.findUniqueOrThrow({
+        where: { id },
+        include: { photos: true, documents: true },
+      });
+
+      await logAudit({
+        userId: session!.user.id,
+        personId: id,
+        action: "ELIMINAR_PERSONA_DEFINITIVO",
+        module: "PERSONAS",
+        oldValue: person.internalCode,
+      });
+
+      for (const ph of person.photos) await deleteUploadedFile(ph.filePath);
+      for (const doc of person.documents) await deleteUploadedFile(doc.filePath);
+
+      await prisma.person.delete({ where: { id } });
+
+      return NextResponse.json({ ok: true });
+    }
+
+    requirePermission(session?.user, "archive");
 
     const updated = await prisma.person.update({
       where: { id },

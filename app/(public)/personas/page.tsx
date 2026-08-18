@@ -19,7 +19,14 @@ export default async function PublicPersonasPage({
           ? { entryInfo: { fechaIngreso: { gte: new Date(`${anio}-01-01`), lt: new Date(`${Number(anio) + 1}-01-01`) } } }
           : {}),
       },
-      include: { identity: true, publicSettings: true, consent: true, entryInfo: true, exitInfo: true },
+      include: {
+        identity: true,
+        publicSettings: true,
+        consent: true,
+        entryInfo: true,
+        exitInfo: true,
+        photos: { where: { publicAuthorized: true }, select: { id: true, tipo: true, publicAuthorized: true } },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.statusOption.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
@@ -34,7 +41,7 @@ export default async function PublicPersonasPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--color-ink)]">Historias autorizadas</h1>
+        <h1 className="font-display tracking-wide text-4xl text-[var(--color-ink)]">Historias autorizadas</h1>
         <p className="text-sm text-[var(--color-ink-soft)] mt-1">
           Solo se muestran perfiles con autorización expresa de la persona.
         </p>

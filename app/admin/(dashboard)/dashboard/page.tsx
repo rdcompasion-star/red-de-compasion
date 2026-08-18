@@ -68,11 +68,12 @@ export default async function AdminDashboardPage() {
           { label: "Total registradas", value: total, href: "/admin/personas" },
           ...porEstado.map((e) => ({ label: e.label, value: e.count, href: `/admin/personas?estado=${e.code}` })),
           { label: "Archivadas", value: archivados, href: "/admin/personas?archived=true" },
-        ].map((t) => (
+        ].map((t, i) => (
           <Link
             key={t.label}
             href={t.href}
-            className="rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-4 text-center hover:border-[var(--color-earth-400)] hover:shadow-sm transition"
+            style={{ animationDelay: `${i * 40}ms` }}
+            className="animate-fade-in-up rounded-2xl border border-[var(--color-earth-100)] bg-[var(--color-paper)] p-4 text-center hover:border-[var(--color-earth-400)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
           >
             <div className="text-2xl font-semibold text-[var(--color-earth-800)]">{t.value}</div>
             <div className="mt-1 text-xs text-[var(--color-ink-soft)]">{t.label}</div>

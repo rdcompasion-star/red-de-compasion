@@ -16,7 +16,14 @@ export async function GET(req: NextRequest) {
         ? { entryInfo: { fechaIngreso: { gte: new Date(`${year}-01-01`), lt: new Date(`${Number(year) + 1}-01-01`) } } }
         : {}),
     },
-    include: { identity: true, publicSettings: true, consent: true, entryInfo: true, exitInfo: true },
+    include: {
+      identity: true,
+      publicSettings: true,
+      consent: true,
+      entryInfo: true,
+      exitInfo: true,
+      photos: { where: { publicAuthorized: true }, select: { id: true, tipo: true, publicAuthorized: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
