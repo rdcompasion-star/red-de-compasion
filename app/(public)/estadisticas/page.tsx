@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { EntriesByYearChart, StatusPieChart } from "@/components/public/StatsCharts";
 import { EMPLOYMENT_LABELS } from "@/lib/domain";
 
+export const dynamic = "force-dynamic";
+
 const EMPLOYMENT_COLORS: Record<string, string> = {
   TRABAJANDO: "#3f9142",
   INDEPENDIENTE: "#5f9c73",

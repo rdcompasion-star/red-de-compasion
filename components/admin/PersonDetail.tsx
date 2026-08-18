@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ImageModal } from "@/components/Modal";
 
@@ -53,6 +54,8 @@ const btnGhost =
 const btnCls = "rounded-lg bg-[var(--color-earth-600)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--color-earth-800)] disabled:opacity-60";
 const btnBigCls =
   "w-full rounded-xl bg-[var(--color-earth-600)] text-white px-5 py-3.5 text-base font-semibold hover:bg-[var(--color-earth-800)] disabled:opacity-60 transition";
+const btnGreenCls =
+  "w-full rounded-xl bg-[var(--color-sage-500)] text-white px-5 py-3.5 text-base font-semibold hover:bg-[var(--color-sage-700)] disabled:opacity-60 transition";
 
 export function PersonDetail({
   id,
@@ -104,6 +107,12 @@ export function PersonDetail({
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
+          <Link
+            href="/admin/dashboard"
+            className="inline-flex items-center gap-1 text-sm text-[var(--color-ink-soft)] hover:text-[var(--color-earth-600)] mb-1"
+          >
+            ← Volver al panel
+          </Link>
           <p className="text-xs text-[var(--color-earth-600)] uppercase tracking-wide">{person.internalCode}</p>
           <h1 className="text-2xl font-semibold text-[var(--color-ink)]">
             {person.identity?.nombres} {person.identity?.apellidos}
@@ -177,8 +186,8 @@ export function PersonDetail({
             ))}
           </select>
           <textarea name="observaciones" placeholder="Observaciones del cambio (opcional)" className={inputCls} rows={2} />
-          <button type="submit" className={btnBigCls}>
-            Guardar cambio de estado
+          <button type="submit" className={btnGreenCls}>
+            Guardar cambios
           </button>
           <p className="text-xs text-center text-[var(--color-ink-soft)]">
             El cambio queda registrado en el historial y, si corresponde, se refleja de inmediato en el sitio público.

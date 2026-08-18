@@ -270,9 +270,14 @@ export default function NewPersonPage() {
           <p className="text-sm text-[var(--color-ink-soft)]">
             Puedes completar el resto de su información (proceso, seguimiento, documentos, confidencial) desde su ficha.
           </p>
-          <button className={btnCls} onClick={() => router.push(`/admin/personas/${personId}`)}>
-            Ir a la ficha completa
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button className={btnGhost} onClick={() => router.push("/admin/dashboard")}>
+              Volver al panel
+            </button>
+            <button className={btnCls} onClick={() => router.push(`/admin/personas/${personId}`)}>
+              Ir a la ficha completa
+            </button>
+          </div>
         </div>
       )}
     </div>

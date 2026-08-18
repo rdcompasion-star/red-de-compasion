@@ -48,7 +48,7 @@ export function AdminSidebar({ userName, userRole }: { userName: string; userRol
           <p className="font-medium text-[var(--color-ink)]">{userName}</p>
           <p className="text-xs text-[var(--color-ink-soft)]">{userRole}</p>
           <button
-            onClick={() => signOut({ callbackUrl: "/admin/login" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="mt-2 text-xs text-[var(--color-earth-600)] hover:underline"
           >
             Cerrar sesión
