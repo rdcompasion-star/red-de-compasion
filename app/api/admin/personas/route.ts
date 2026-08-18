@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import { apiErrorResponse } from "@/lib/apiError";
+import { generateNextInternalCode } from "@/lib/personCode";
 import { z } from "zod";
 
 export async function GET(req: NextRequest) {
@@ -67,8 +68,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = createSchema.parse(body);
 
-    const count = await prisma.person.count();
-    const internalCode = `P-${String(count + 1).padStart(4, "0")}`;
+    const internalCode = await generateNextInternalCode();
 
     const person = await prisma.person.create({
       data: {
